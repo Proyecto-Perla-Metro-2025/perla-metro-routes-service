@@ -17,7 +17,21 @@ namespace RoutesService.Src.Controllers
             var response = new ApiResponse<IEnumerable<RouteEntity>>(routes, "Routes retrieved successfully", true);
             return Ok(response);
         }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ApiResponse<RouteEntity>>> GetRouteById(string id)
+        {
+            var route = await _routeService.GetRouteByIdAsync(id);
 
+            // Si la ruta no se encuentra, devolvemos un error 404 Not Found.
+            if (route == null)
+            {
+                return NotFound(new ApiResponse<RouteEntity?>(null, "Route not found", false));
+            }
+
+            // Si se encuentra, la devolvemos en una respuesta exitosa.
+            var response = new ApiResponse<RouteEntity>(route, "Route retrieved successfully", true);
+            return Ok(response);
+        }
         [HttpPost]
         public async Task<IActionResult> CreateRoute([FromBody] RouteEntity route)
         {
