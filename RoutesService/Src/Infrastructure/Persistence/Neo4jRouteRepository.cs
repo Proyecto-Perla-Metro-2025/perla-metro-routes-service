@@ -48,9 +48,42 @@ namespace RoutesService.Src.Infrastructure.Persistence
             }
         }
 
-        public Task CreateRouteAsync(Microsoft.AspNetCore.Routing.Route route)
+        public async Task<IEnumerable<RouteEntity>> GetAllRoutesAsync()
         {
-            throw new NotImplementedException();
+            var routes = new List<RouteEntity>();
+            var session = _connection.Driver.AsyncSession();
+            try
+            {
+
+                var cypherQuery = "MATCH (r:Route) RETURN r";
+
+
+                await session.ExecuteReadAsync(async tx =>
+                {
+                    var result = await tx.RunAsync(cypherQuery);
+                    await foreach (var record in result)
+                    {
+
+                        var node = record["r"].As<INode>();
+
+                        routes.Add(new RouteEntity
+                        {
+                            Id = node["id"].As<string>(),
+                            OriginStation = node["originStation"].As<string>(),
+                            DestinationStation = node["destinationStation"].As<string>(),
+                            StartTime = node["startTime"].As<DateTimeOffset>().DateTime,
+                            EndTime = node["endTime"].As<DateTimeOffset>().DateTime,
+                            IntermediateStops = node["intermediateStops"].As<List<string>>(),
+                            IsActive = node["isActive"].As<bool>()
+                        });
+                    }
+                });
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+            return routes;
         }
     }
 }
