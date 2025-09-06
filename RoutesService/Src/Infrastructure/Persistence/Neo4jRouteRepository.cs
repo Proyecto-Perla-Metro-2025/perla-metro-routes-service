@@ -85,5 +85,47 @@ namespace RoutesService.Src.Infrastructure.Persistence
             }
             return routes;
         }
+        public async Task<RouteEntity?> GetRouteByIdAsync(string id)
+        {
+            RouteEntity? route = null;
+            var session = _connection.Driver.AsyncSession();
+            try
+            {
+                var cypherQuery = "MATCH (r:Route {id: $id}) RETURN r";
+
+                await session.ExecuteReadAsync(async tx =>
+                {
+                    var result = await tx.RunAsync(cypherQuery, new { id });
+
+                    // Usamos ToListAsync() para obtener una lista de todos los registros encontrados.
+                    // La lista tendrá 0 o 1 elemento.
+                    var records = await result.ToListAsync();
+
+                    // Verificamos si la lista contiene algún registro.
+                    if (records.Any())
+                    {
+                        var record = records.First(); // Tomamos el primer (y único) registro.
+                        var node = record["r"].As<INode>();
+                        route = new RouteEntity
+                        {
+                            Id = node["id"].As<string>(),
+                            OriginStation = node["originStation"].As<string>(),
+                            DestinationStation = node["destinationStation"].As<string>(),
+                            StartTime = node["startTime"].As<DateTimeOffset>().DateTime,
+                            EndTime = node["endTime"].As<DateTimeOffset>().DateTime,
+                            IntermediateStops = node["intermediateStops"].As<List<string>>(),
+                            IsActive = node["isActive"].As<bool>()
+                        };
+                    }
+                });
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
+
+            return route;
+        }
     }
 }

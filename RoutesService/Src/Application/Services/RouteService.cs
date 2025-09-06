@@ -18,8 +18,12 @@ namespace RoutesService.Src.Application.Services
 
         public async Task<IEnumerable<RouteEntity>> GetAllRoutesAsync()
         {
-            
+
             return await _routeRepository.GetAllRoutesAsync();
+        }
+        public async Task<RouteEntity?> GetRouteByIdAsync(string id)
+        {
+            return await _routeRepository.GetRouteByIdAsync(id);
         }
     }
 }
