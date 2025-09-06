@@ -16,6 +16,10 @@ namespace RoutesService.Src.Application.Services
             await _routeRepository.CreateRouteAsync(route);
         }
 
-
+        public async Task<IEnumerable<RouteEntity>> GetAllRoutesAsync()
+        {
+            
+            return await _routeRepository.GetAllRoutesAsync();
+        }
     }
 }
