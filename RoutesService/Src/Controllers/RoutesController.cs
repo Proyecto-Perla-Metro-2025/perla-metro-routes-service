@@ -13,10 +13,11 @@ namespace RoutesService.Src.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRoute([FromBody] RouteEntity route)
         {
-            Console.WriteLine("Creating route...");
+
             await _routeService.CreateRouteAsync(route);
-            Console.WriteLine($"Route created with ID: {route.Id}");
-            return CreatedAtAction(nameof(CreateRoute), new { id = route.Id }, route);
+
+            var response = new Responses.ApiResponse<RouteEntity>(route, "Route created successfully", true);
+            return Ok(response);
         }
     }
 }
