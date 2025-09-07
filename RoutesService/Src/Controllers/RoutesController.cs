@@ -59,5 +59,20 @@ namespace RoutesService.Src.Controllers
                 return NotFound(new ApiResponse<RouteEntity?>(null, ex.Message, false));
             }
         }
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ApiResponse<object>>> DeleteRoute(string id)
+        {
+            try
+            {
+                await _routeService.DeleteRouteAsync(id);
+                var response = new ApiResponse<object>(null, "Route deactivated successfully", true);
+                return Ok(response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Si el servicio lanza la excepción, devolvemos un 404 Not Found.
+                return NotFound(new ApiResponse<object>(null, ex.Message, false));
+            }
+        }
     }
 }
