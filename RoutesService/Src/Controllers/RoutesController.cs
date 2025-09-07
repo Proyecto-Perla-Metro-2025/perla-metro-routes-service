@@ -43,36 +43,33 @@ namespace RoutesService.Src.Controllers
             return Ok(response);
         }
         [HttpPut("{id}")]
-        public async Task<ActionResult<ApiResponse<RouteEntity>>> UpdateRoute(string id, [FromBody] RouteEntity updatedRoute)
+        public async Task<ActionResult<ApiResponse<object>>> UpdateRoute(string id, [FromBody] UpdateRouteDto routeDto)
         {
-            // Asignamos el ID de la URL al objeto para asegurar consistencia.
-            updatedRoute.Id = id;
-
             try
             {
-                await _routeService.UpdateRouteAsync(updatedRoute);
-                var response = new ApiResponse<RouteEntity?>(null, "Route updated successfully", true);
+                // 2. Llama al servicio con el id y el DTO
+                await _routeService.UpdateRouteAsync(id, routeDto);
+                var response = new ApiResponse<object?>(null, "Route updated successfully", true);
                 return Ok(response);
             }
             catch (KeyNotFoundException ex)
             {
-                // Si el servicio lanza la excepción, devolvemos un 404 Not Found.
-                return NotFound(new ApiResponse<RouteEntity?>(null, ex.Message, false));
+                return NotFound(new ApiResponse<object?>(null, ex.Message, false));
             }
         }
         [HttpDelete("{id}")]
-        public async Task<ActionResult<ApiResponse<object>>> DeleteRoute(string id)
+        public async Task<ActionResult<ApiResponse<object?>>> DeleteRoute(string id)
         {
             try
             {
                 await _routeService.DeleteRouteAsync(id);
-                var response = new ApiResponse<object>(null, "Route deactivated successfully", true);
+                var response = new ApiResponse<object?>(null, "Route deactivated successfully", true);
                 return Ok(response);
             }
             catch (KeyNotFoundException ex)
             {
                 // Si el servicio lanza la excepción, devolvemos un 404 Not Found.
-                return NotFound(new ApiResponse<object>(null, ex.Message, false));
+                return NotFound(new ApiResponse<object?>(null, ex.Message, false));
             }
         }
     }
