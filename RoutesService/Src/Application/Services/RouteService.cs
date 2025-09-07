@@ -27,14 +27,27 @@ namespace RoutesService.Src.Application.Services
         }
         public async Task UpdateRouteAsync(RouteEntity route)
         {
-            
+
             var existingRoute = await _routeRepository.GetRouteByIdAsync(route.Id);
             if (existingRoute == null)
             {
                 throw new KeyNotFoundException($"Route with id '{route.Id}' was not found.");
             }
-            
+
             await _routeRepository.UpdateRouteAsync(route);
+        }
+        public async Task DeleteRouteAsync(string id)
+        {
+            
+            var existingRoute = await _routeRepository.GetRouteByIdAsync(id);
+            if (existingRoute == null)
+            {
+                
+                throw new KeyNotFoundException($"Route with id '{id}' was not found.");
+            }
+
+            
+            await _routeRepository.DeleteRouteAsync(id);
         }
     }
 }

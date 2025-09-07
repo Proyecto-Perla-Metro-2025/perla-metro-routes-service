@@ -126,6 +126,26 @@ namespace RoutesService.Src.Infrastructure.Persistence
                 await session.CloseAsync();
             }
         }
+        public async Task DeleteRouteAsync(string id)
+        {
+            var session = _connection.Driver.AsyncSession();
+            try
+            {
+                // Consulta Cypher para encontrar un nodo por su ID y cambiar una sola propiedad.
+                var cypherQuery = @"
+            MATCH (r:Route {id: $id})
+            SET r.isActive = false";
+
+                await session.ExecuteWriteAsync(async tx =>
+                {
+                    await tx.RunAsync(cypherQuery, new { id });
+                });
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+        }
         private RouteEntity MapNodeToRouteEntity(INode node)
         {
             return new RouteEntity
