@@ -10,5 +10,6 @@ namespace RoutesService.Src.Core.Interfaces
         Task CreateRouteAsync(RouteEntity route);
         Task<IEnumerable<RouteEntity>> GetAllRoutesAsync();
         Task<RouteEntity?> GetRouteByIdAsync(string id);
+        Task UpdateRouteAsync(RouteEntity route);
     }
 }

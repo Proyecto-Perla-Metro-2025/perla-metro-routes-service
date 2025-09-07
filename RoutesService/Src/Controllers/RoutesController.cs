@@ -41,5 +41,23 @@ namespace RoutesService.Src.Controllers
             var response = new ApiResponse<RouteEntity>(route, "Route created successfully", true);
             return Ok(response);
         }
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ApiResponse<RouteEntity>>> UpdateRoute(string id, [FromBody] RouteEntity updatedRoute)
+        {
+            // Asignamos el ID de la URL al objeto para asegurar consistencia.
+            updatedRoute.Id = id;
+
+            try
+            {
+                await _routeService.UpdateRouteAsync(updatedRoute);
+                var response = new ApiResponse<RouteEntity?>(null, "Route updated successfully", true);
+                return Ok(response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Si el servicio lanza la excepción, devolvemos un 404 Not Found.
+                return NotFound(new ApiResponse<RouteEntity?>(null, ex.Message, false));
+            }
+        }
     }
 }
