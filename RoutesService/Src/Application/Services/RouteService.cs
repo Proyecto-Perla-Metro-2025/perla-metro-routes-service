@@ -39,6 +39,10 @@ namespace RoutesService.Src.Application.Services
         }
         public async Task UpdateRouteAsync(string id, UpdateRouteDto routeDto)
         {
+            if (routeDto.EndTime <= routeDto.StartTime)
+            {
+                throw new ArgumentException("End time must be after start time.");
+            }
             var existingRoute = await _routeRepository.GetRouteByIdAsync(id);
             if (existingRoute == null)
             {
