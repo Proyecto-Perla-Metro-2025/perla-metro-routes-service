@@ -3,6 +3,7 @@ using RouteEntity = RoutesService.Src.Core.Entities.Route;
 using RoutesService.Src.Core.Interfaces;
 using RoutesService.Src.Responses;
 using RoutesService.Src.Application.Services;
+using RoutesService.Src.Controllers.DTOs;
 namespace RoutesService.Src.Controllers
 {
     [ApiController]
@@ -11,14 +12,14 @@ namespace RoutesService.Src.Controllers
     {
         private readonly IRouteService _routeService = routeService;
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<IEnumerable<RouteEntity>>>> GetAllRoutes()
+        public async Task<ActionResult<ApiResponse<IEnumerable<RouteDto>>>> GetAllRoutes()
         {
             var routes = await _routeService.GetAllRoutesAsync();
-            var response = new ApiResponse<IEnumerable<RouteEntity>>(routes, "Routes retrieved successfully", true);
+            var response = new ApiResponse<IEnumerable<RouteDto>>(routes, "Routes retrieved successfully", true);
             return Ok(response);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApiResponse<RouteEntity>>> GetRouteById(string id)
+        public async Task<ActionResult<ApiResponse<RouteDto>>> GetRouteById(string id)
         {
             var route = await _routeService.GetRouteByIdAsync(id);
 
@@ -29,16 +30,16 @@ namespace RoutesService.Src.Controllers
             }
 
             // Si se encuentra, la devolvemos en una respuesta exitosa.
-            var response = new ApiResponse<RouteEntity>(route, "Route retrieved successfully", true);
+            var response = new ApiResponse<RouteDto>(route, "Route retrieved successfully", true);
             return Ok(response);
         }
         [HttpPost]
-        public async Task<IActionResult> CreateRoute([FromBody] RouteEntity route)
+        public async Task<IActionResult> CreateRoute([FromBody] CreateRouteDto route)
         {
 
             await _routeService.CreateRouteAsync(route);
 
-            var response = new ApiResponse<RouteEntity>(route, "Route created successfully", true);
+            var response = new ApiResponse<CreateRouteDto>(route, "Route created successfully", true);
             return Ok(response);
         }
         [HttpPut("{id}")]

@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RoutesService.Src.Controllers.DTOs;
 using RouteEntity = RoutesService.Src.Core.Entities.Route;
 namespace RoutesService.Src.Core.Interfaces
 {
     public interface IRouteService
     {
-        Task CreateRouteAsync(RouteEntity route);
-        Task<IEnumerable<RouteEntity>> GetAllRoutesAsync();
-        Task<RouteEntity?> GetRouteByIdAsync(string id);
-        Task UpdateRouteAsync(RouteEntity route);
+        Task CreateRouteAsync(CreateRouteDto routeDto);
+        Task<IEnumerable<RouteDto>> GetAllRoutesAsync();
+        Task<RouteDto?> GetRouteByIdAsync(string id);
+        Task UpdateRouteAsync(string id, UpdateRouteDto routeDto);
         Task DeleteRouteAsync(string id);
     }
 }
