@@ -18,15 +18,15 @@ namespace RoutesService.Src.Infrastructure.Persistence
             try
             {
                 var cypherQuery = @"
-                CREATE (r:Route {
-                    id: $id,
-                    originStation: $originStation,
-                    destinationStation: $destinationStation,
-                    startTime: $startTime,
-                    endTime: $endTime,
-                    intermediateStops: $intermediateStops,
-                    isActive: $isActive
-                })";
+            CREATE (r:Route {
+                id: $id,
+                originStation: $originStation,
+                destinationStation: $destinationStation,
+                startTime: $startTime,
+                endTime: $endTime,
+                intermediateStops: $intermediateStops,
+                isActive: $isActive
+            })";
 
                 await session.ExecuteWriteAsync(async tx =>
                 {
@@ -35,8 +35,8 @@ namespace RoutesService.Src.Infrastructure.Persistence
                         id = Guid.NewGuid().ToString(),
                         originStation = route.OriginStation,
                         destinationStation = route.DestinationStation,
-                        startTime = route.StartTime,
-                        endTime = route.EndTime,
+                        startTime = new ZonedDateTime(route.StartTime, TimeZoneInfo.Utc.Id),
+                        endTime = new ZonedDateTime(route.EndTime, TimeZoneInfo.Utc.Id),
                         intermediateStops = route.IntermediateStops,
                         isActive = route.IsActive
                     });
@@ -54,30 +54,14 @@ namespace RoutesService.Src.Infrastructure.Persistence
             var session = _connection.Driver.AsyncSession();
             try
             {
-
                 var cypherQuery = "MATCH (r:Route) RETURN r";
-
-
-                await session.ExecuteReadAsync(async tx =>
+                var result = await session.RunAsync(cypherQuery);
+                var records = await result.ToListAsync();
+                foreach (var record in records)
                 {
-                    var result = await tx.RunAsync(cypherQuery);
-                    await foreach (var record in result)
-                    {
-
-                        var node = record["r"].As<INode>();
-
-                        routes.Add(new RouteEntity
-                        {
-                            Id = node["id"].As<string>(),
-                            OriginStation = node["originStation"].As<string>(),
-                            DestinationStation = node["destinationStation"].As<string>(),
-                            StartTime = node["startTime"].As<DateTimeOffset>().DateTime,
-                            EndTime = node["endTime"].As<DateTimeOffset>().DateTime,
-                            IntermediateStops = node["intermediateStops"].As<List<string>>(),
-                            IsActive = node["isActive"].As<bool>()
-                        });
-                    }
-                });
+                    var node = record["r"].As<INode>();
+                    routes.Add(MapNodeToRouteEntity(node));
+                }
             }
             finally
             {
@@ -85,47 +69,92 @@ namespace RoutesService.Src.Infrastructure.Persistence
             }
             return routes;
         }
+
         public async Task<RouteEntity?> GetRouteByIdAsync(string id)
         {
-            RouteEntity? route = null;
             var session = _connection.Driver.AsyncSession();
             try
             {
                 var cypherQuery = "MATCH (r:Route {id: $id}) RETURN r";
+                var result = await session.RunAsync(cypherQuery, new { id });
+                var record = await result.FetchAsync() && result.Current != null ? result.Current : null;
 
-                await session.ExecuteReadAsync(async tx =>
+                if (record == null)
                 {
-                    var result = await tx.RunAsync(cypherQuery, new { id });
+                    return null;
+                }
 
-                    // Usamos ToListAsync() para obtener una lista de todos los registros encontrados.
-                    // La lista tendrá 0 o 1 elemento.
-                    var records = await result.ToListAsync();
+                var node = record["r"].As<INode>();
+                return MapNodeToRouteEntity(node);
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+        }
 
-                    // Verificamos si la lista contiene algún registro.
-                    if (records.Any())
+        public async Task UpdateRouteAsync(RouteEntity route)
+        {
+            var session = _connection.Driver.AsyncSession();
+            try
+            {
+                var cypherQuery = @"
+            MATCH (r:Route {id: $id})
+            SET r.originStation = $originStation,
+                r.destinationStation = $destinationStation,
+                r.startTime = $startTime,
+                r.endTime = $endTime,
+                r.intermediateStops = $intermediateStops,
+                r.isActive = $isActive";
+
+                await session.ExecuteWriteAsync(async tx =>
+                {
+                    await tx.RunAsync(cypherQuery, new
                     {
-                        var record = records.First(); // Tomamos el primer (y único) registro.
-                        var node = record["r"].As<INode>();
-                        route = new RouteEntity
-                        {
-                            Id = node["id"].As<string>(),
-                            OriginStation = node["originStation"].As<string>(),
-                            DestinationStation = node["destinationStation"].As<string>(),
-                            StartTime = node["startTime"].As<DateTimeOffset>().DateTime,
-                            EndTime = node["endTime"].As<DateTimeOffset>().DateTime,
-                            IntermediateStops = node["intermediateStops"].As<List<string>>(),
-                            IsActive = node["isActive"].As<bool>()
-                        };
-                    }
+                        id = route.Id,
+                        originStation = route.OriginStation,
+                        destinationStation = route.DestinationStation,
+                        startTime = new ZonedDateTime(route.StartTime, TimeZoneInfo.Utc.Id),
+                        endTime = new ZonedDateTime(route.EndTime, TimeZoneInfo.Utc.Id),
+                        intermediateStops = route.IntermediateStops,
+                        isActive = route.IsActive
+                    });
                 });
             }
             finally
             {
                 await session.CloseAsync();
             }
+        }
+        private RouteEntity MapNodeToRouteEntity(INode node)
+        {
+            return new RouteEntity
+            {
+                Id = node["id"].As<string>(),
+                OriginStation = node["originStation"].As<string>(),
+                DestinationStation = node["destinationStation"].As<string>(),
+                // Usamos nuestra función de ayuda para convertir las fechas de forma segura
+                StartTime = ConvertToDateTime(node["startTime"]),
+                EndTime = ConvertToDateTime(node["endTime"]),
+                IntermediateStops = node["intermediateStops"].As<List<string>>(),
+                IsActive = node["isActive"].As<bool>()
+            };
+        }
 
+        private DateTime ConvertToDateTime(object neo4jDate)
+        {
+            if (neo4jDate is ZonedDateTime zonedDateTime)
+            {
 
-            return route;
+                return zonedDateTime.ToDateTimeOffset().DateTime;
+            }
+            if (neo4jDate is LocalDateTime localDateTime)
+            {
+
+                return localDateTime.ToDateTime();
+            }
+
+            return (DateTime)neo4jDate;
         }
     }
 }
