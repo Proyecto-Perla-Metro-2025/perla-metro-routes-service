@@ -38,20 +38,14 @@ namespace RoutesService.Src.Controllers
         {
             try
             {
-                // 1. El servicio ahora nos devuelve el DTO de la ruta creada.
                 var newRouteDto = await _routeService.CreateRouteAsync(routeDto);
 
                 var response = new ApiResponse<RouteDto>(newRouteDto, "Route created successfully", true);
 
-                // 2. Usamos CreatedAtAction para devolver un 201 Created.
-                //    - nameof(GetRouteById): Es el nombre de la acción que puede ser usada para obtener este nuevo recurso.
-                //    - new { id = newRouteDto.Id }: Son los parámetros de ruta para esa acción.
-                //    - response: Es el cuerpo de la respuesta que enviaremos.
                 return CreatedAtAction(nameof(GetRouteById), new { id = newRouteDto.Id }, response);
             }
             catch (ArgumentException ex)
             {
-                // Manejamos la validación de negocio que añadimos en el servicio.
                 return BadRequest(new ApiResponse<object?>(null, ex.Message, false));
             }
         }
@@ -60,7 +54,6 @@ namespace RoutesService.Src.Controllers
         {
             try
             {
-                // 2. Llama al servicio con el id y el DTO
                 await _routeService.UpdateRouteAsync(id, routeDto);
                 var response = new ApiResponse<object?>(null, "Route updated successfully", true);
                 return Ok(response);
@@ -68,6 +61,10 @@ namespace RoutesService.Src.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(new ApiResponse<object?>(null, ex.Message, false));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new ApiResponse<object?>(null, ex.Message, false));
             }
         }
         [HttpDelete("{id}")]
