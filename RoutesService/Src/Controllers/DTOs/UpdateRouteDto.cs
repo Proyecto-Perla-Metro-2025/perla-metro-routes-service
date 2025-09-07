@@ -10,14 +10,14 @@ namespace RoutesService.Src.Controllers.DTOs
     {
         [Required(ErrorMessage = "Origin station is required.")]
         [StringLength(100, MinimumLength = 3)]
-        public string? OriginStation { get; set; }
+        public string OriginStation { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Destination station is required.")]
         [StringLength(100, MinimumLength = 3)]
-        public string? DestinationStation { get; set; }
+        public string DestinationStation { get; set; } = string.Empty;
 
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateTime? StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
         public List<string>? IntermediateStops { get; set; }
 
     }

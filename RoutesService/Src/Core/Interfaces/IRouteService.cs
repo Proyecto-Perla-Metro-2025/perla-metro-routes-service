@@ -8,7 +8,7 @@ namespace RoutesService.Src.Core.Interfaces
 {
     public interface IRouteService
     {
-        Task CreateRouteAsync(CreateRouteDto routeDto);
+        Task<RouteDto> CreateRouteAsync(CreateRouteDto routeDto);
         Task<IEnumerable<RouteDto>> GetAllRoutesAsync();
         Task<RouteDto?> GetRouteByIdAsync(string id);
         Task UpdateRouteAsync(string id, UpdateRouteDto routeDto);

@@ -7,7 +7,7 @@ namespace RoutesService.Src.Core.Interfaces
 {
     public interface IRouteRepository
     {
-        Task CreateRouteAsync(RouteEntity route);
+        Task<RouteEntity> CreateRouteAsync(RouteEntity route);
         Task<IEnumerable<RouteEntity>> GetAllRoutesAsync();
         Task<RouteEntity?> GetRouteByIdAsync(string id);
         Task UpdateRouteAsync(RouteEntity route);

@@ -13,10 +13,18 @@ namespace RoutesService.Src.Application.Services
         private readonly IRouteRepository _routeRepository = routeRepository;
         private readonly IMapper _mapper = mapper;
 
-        public async Task CreateRouteAsync(CreateRouteDto routeDto)
+        public async Task<RouteDto> CreateRouteAsync(CreateRouteDto routeDto)
         {
-            var route = _mapper.Map<RouteEntity>(routeDto);
-            await _routeRepository.CreateRouteAsync(route);
+            if (routeDto.EndTime <= routeDto.StartTime)
+            {
+                throw new ArgumentException("End time must be after start time.");
+            }
+
+            var routeEntity = _mapper.Map<RouteEntity>(routeDto);
+
+            var createdEntity = await _routeRepository.CreateRouteAsync(routeEntity);
+
+            return _mapper.Map<RouteDto>(createdEntity);
         }
 
         public async Task<IEnumerable<RouteDto>> GetAllRoutesAsync()

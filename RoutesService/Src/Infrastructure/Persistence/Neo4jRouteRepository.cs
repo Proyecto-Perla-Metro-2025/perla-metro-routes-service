@@ -12,33 +12,35 @@ namespace RoutesService.Src.Infrastructure.Persistence
     {
         private readonly Neo4jConnection _connection = connection;
 
-        public async Task CreateRouteAsync(RouteEntity route)
+        public async Task<RouteEntity> CreateRouteAsync(RouteEntity route)
         {
+            route.Id = Guid.NewGuid().ToString();
             var session = _connection.Driver.AsyncSession();
             try
             {
                 var cypherQuery = @"
-            CREATE (r:Route {
-                id: $id,
-                originStation: $originStation,
-                destinationStation: $destinationStation,
-                startTime: $startTime,
-                endTime: $endTime,
-                intermediateStops: $intermediateStops,
-                isActive: $isActive
-            })";
+                CREATE (r:Route {
+                    id: $Id,
+                    originStation: $OriginStation,
+                    destinationStation: $DestinationStation,
+                    startTime: $StartTime,
+                    endTime: $EndTime,
+                    intermediateStops: $IntermediateStops,
+                    isActive: $IsActive
+                })";
 
                 await session.ExecuteWriteAsync(async tx =>
                 {
+                    
                     await tx.RunAsync(cypherQuery, new
                     {
-                        id = Guid.NewGuid().ToString(),
-                        originStation = route.OriginStation,
-                        destinationStation = route.DestinationStation,
-                        startTime = new ZonedDateTime(route.StartTime, TimeZoneInfo.Utc.Id),
-                        endTime = new ZonedDateTime(route.EndTime, TimeZoneInfo.Utc.Id),
-                        intermediateStops = route.IntermediateStops,
-                        isActive = route.IsActive
+                        route.Id,
+                        route.OriginStation,
+                        route.DestinationStation,
+                        StartTime = new ZonedDateTime(route.StartTime),
+                        EndTime = new ZonedDateTime(route.EndTime),
+                        route.IntermediateStops,
+                        route.IsActive
                     });
                 });
             }
@@ -46,6 +48,7 @@ namespace RoutesService.Src.Infrastructure.Persistence
             {
                 await session.CloseAsync();
             }
+            return route;
         }
 
         public async Task<IEnumerable<RouteEntity>> GetAllRoutesAsync()

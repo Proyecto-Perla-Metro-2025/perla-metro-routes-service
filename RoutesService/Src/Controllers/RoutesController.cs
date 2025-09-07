@@ -34,13 +34,26 @@ namespace RoutesService.Src.Controllers
             return Ok(response);
         }
         [HttpPost]
-        public async Task<IActionResult> CreateRoute([FromBody] CreateRouteDto route)
+        public async Task<ActionResult<ApiResponse<RouteDto>>> CreateRoute([FromBody] CreateRouteDto routeDto)
         {
+            try
+            {
+                // 1. El servicio ahora nos devuelve el DTO de la ruta creada.
+                var newRouteDto = await _routeService.CreateRouteAsync(routeDto);
 
-            await _routeService.CreateRouteAsync(route);
+                var response = new ApiResponse<RouteDto>(newRouteDto, "Route created successfully", true);
 
-            var response = new ApiResponse<CreateRouteDto>(route, "Route created successfully", true);
-            return Ok(response);
+                // 2. Usamos CreatedAtAction para devolver un 201 Created.
+                //    - nameof(GetRouteById): Es el nombre de la acción que puede ser usada para obtener este nuevo recurso.
+                //    - new { id = newRouteDto.Id }: Son los parámetros de ruta para esa acción.
+                //    - response: Es el cuerpo de la respuesta que enviaremos.
+                return CreatedAtAction(nameof(GetRouteById), new { id = newRouteDto.Id }, response);
+            }
+            catch (ArgumentException ex)
+            {
+                // Manejamos la validación de negocio que añadimos en el servicio.
+                return BadRequest(new ApiResponse<object?>(null, ex.Message, false));
+            }
         }
         [HttpPut("{id}")]
         public async Task<ActionResult<ApiResponse<object>>> UpdateRoute(string id, [FromBody] UpdateRouteDto routeDto)
