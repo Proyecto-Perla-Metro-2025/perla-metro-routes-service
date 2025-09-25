@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHealthChecks();
 builder.Services.AddSingleton<Neo4jConnection>(); // Servicio para la conexión a Neo4j
 builder.Services.AddScoped<IRouteRepository, Neo4jRouteRepository>(); // Servicio del Repositorio
 builder.Services.AddScoped<IRouteService, RouteService>();
@@ -15,6 +16,7 @@ var url = $"http://*:{port}";
 builder.WebHost.UseUrls(url);
 var app = builder.Build();
 app.UseAuthorization();
+app.MapHealthChecks("/health");
 app.MapControllers();
 app.Run();
 

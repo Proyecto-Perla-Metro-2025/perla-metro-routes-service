@@ -19,7 +19,16 @@ namespace RoutesService.Src.Application.Services
             {
                 throw new ArgumentException("End time must be after start time.");
             }
-
+            var exists = await _routeRepository.RouteExistsAsync(
+                routeDto.OriginStation,
+                routeDto.DestinationStation,
+                routeDto.StartTime,
+                routeDto.IntermediateStops
+            );
+            if (exists)
+            {
+                throw new InvalidOperationException("An identical route already exists.");
+            }
             var routeEntity = _mapper.Map<RouteEntity>(routeDto);
 
             var createdEntity = await _routeRepository.CreateRouteAsync(routeEntity);
@@ -27,9 +36,9 @@ namespace RoutesService.Src.Application.Services
             return _mapper.Map<RouteDto>(createdEntity);
         }
 
-        public async Task<IEnumerable<RouteDto>> GetAllRoutesAsync()
+        public async Task<IEnumerable<RouteDto>> GetAllRoutesAsync(bool? isActive)
         {
-            var routes = await _routeRepository.GetAllRoutesAsync();
+            var routes = await _routeRepository.GetAllRoutesAsync(isActive);
             return _mapper.Map<IEnumerable<RouteDto>>(routes);
         }
         public async Task<RouteDto?> GetRouteByIdAsync(string id)

@@ -12,9 +12,9 @@ namespace RoutesService.Src.Controllers
     {
         private readonly IRouteService _routeService = routeService;
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<IEnumerable<RouteDto>>>> GetAllRoutes()
+        public async Task<ActionResult<ApiResponse<IEnumerable<RouteDto>>>> GetAllRoutes([FromQuery] bool? isActive)
         {
-            var routes = await _routeService.GetAllRoutesAsync();
+            var routes = await _routeService.GetAllRoutesAsync(isActive);
             var response = new ApiResponse<IEnumerable<RouteDto>>(routes, "Routes retrieved successfully", true);
             return Ok(response);
         }
@@ -38,15 +38,17 @@ namespace RoutesService.Src.Controllers
         {
             try
             {
-                var newRouteDto = await _routeService.CreateRouteAsync(routeDto);
-
+                var newRouteDto = await routeService.CreateRouteAsync(routeDto);
                 var response = new ApiResponse<RouteDto>(newRouteDto, "Route created successfully", true);
-
                 return CreatedAtAction(nameof(GetRouteById), new { id = newRouteDto.Id }, response);
             }
-            catch (ArgumentException ex)
+            catch (ArgumentException ex) // Para errores de validación (ej. fechas)
             {
-                return BadRequest(new ApiResponse<object?>(null, ex.Message, false));
+                return BadRequest(new ApiResponse<object>(null, ex.Message, false));
+            }
+            catch (InvalidOperationException ex) 
+            {
+                return BadRequest(new ApiResponse<object>(null, ex.Message, false));
             }
         }
         [HttpPut("{id}")]
