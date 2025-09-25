@@ -126,7 +126,7 @@ A continuación se detalla cómo consumir cada endpoint usando una herramienta c
     "endTime": "2025-11-10T10:45:00",
     "intermediateStops": [ "Estación X", "Estación Y" ]
   }
-  ### 5.5 Desactivar una Ruta (Soft Delete)
+### 5.5 Desactivar una Ruta (Soft Delete)
 * **Endpoint**: `DELETE /api/routes/{id}`
 * **Descripción**: Marca una ruta como inactiva.
 * **Ejemplo con cURL:**:
