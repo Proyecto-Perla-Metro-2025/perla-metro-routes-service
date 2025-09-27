@@ -13,7 +13,12 @@ El proyecto sigue los principios de la **Arquitectura Limpia (Clean Architecture
 - **Controllers (API)**: Expone la funcionalidad a través de una API RESTful.
 
 A nivel de sistema, este servicio forma parte de un **Monolito Distribuido con Arquitectura Orientada a Servicios (SOA)**.
+Este servicio forma parte de un **Monolito Distribuido con Arquitectura Orientada a Servicios (SOA)**, diseñado para gestionar de forma independiente las rutas del sistema Perla Metro.
 
+Para garantizar un código limpio, mantenible y escalable, se han implementado los siguientes patrones de diseño:
+
+-   **Patrón Repositorio**: Se utiliza para abstraer la capa de acceso a datos. La interfaz `IRouteRepository` define un contrato que es implementado por `Neo4jRouteRepository`, permitiendo que la lógica de negocio (en el servicio) no dependa directamente de la base de datos Neo4j.
+-   **Data Transfer Objects (DTOs)**: Se emplean para la comunicación entre el cliente y la API. Objetos como `CreateRouteDto` y `RouteDto` aseguran que solo se exponga la información necesaria, mejorando la seguridad y el rendimiento.
 ---
 
 ## 3. Configuración del Entorno Local (Paso a Paso)

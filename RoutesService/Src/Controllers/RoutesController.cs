@@ -11,6 +11,11 @@ namespace RoutesService.Src.Controllers
     public class RoutesController(IRouteService routeService) : ControllerBase
     {
         private readonly IRouteService _routeService = routeService;
+        /// <summary>
+        /// Obtiene todas las rutas, con opción de filtrar por estado (activas/inactivas).
+        /// </summary>
+        /// <param name="isActive">Filtro opcional para obtener solo rutas activas o inactivas.</param>
+        /// <returns>Una lista de rutas.</returns>
         [HttpGet]
         public async Task<ActionResult<ApiResponse<IEnumerable<RouteDto>>>> GetAllRoutes([FromQuery] bool? isActive)
         {
@@ -18,6 +23,11 @@ namespace RoutesService.Src.Controllers
             var response = new ApiResponse<IEnumerable<RouteDto>>(routes, "Routes retrieved successfully", true);
             return Ok(response);
         }
+        /// <summary>
+        /// Obtiene una ruta específica por su ID.
+        /// </summary>
+        /// <param name="id">El ID único de la ruta.</param>
+        /// <returns>Los detalles de la ruta encontrada o un error 404 si no se encuentra.</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse<RouteDto>>> GetRouteById(string id)
         {
@@ -33,6 +43,11 @@ namespace RoutesService.Src.Controllers
             var response = new ApiResponse<RouteDto>(route, "Route retrieved successfully", true);
             return Ok(response);
         }
+        /// <summary>
+        /// Crea una nueva ruta en el sistema.
+        /// </summary>
+        /// <param name="routeDto">Los datos para la nueva ruta.</param>
+        /// <returns>La ruta recién creada con su ID asignado.</returns>
         [HttpPost]
         public async Task<ActionResult<ApiResponse<RouteDto>>> CreateRoute([FromBody] CreateRouteDto routeDto)
         {
@@ -51,6 +66,12 @@ namespace RoutesService.Src.Controllers
                 return BadRequest(new ApiResponse<object>(null, ex.Message, false));
             }
         }
+        /// <summary>
+        /// Actualiza una ruta existente.
+        /// </summary>
+        /// <param name="id">El ID de la ruta a actualizar.</param>
+        /// <param name="routeDto">Los nuevos datos para la ruta.</param>
+        /// <returns>Una respuesta de éxito o un error si la ruta no se encuentra.</returns>
         [HttpPut("{id}")]
         public async Task<ActionResult<ApiResponse<object>>> UpdateRoute(string id, [FromBody] UpdateRouteDto routeDto)
         {
@@ -69,6 +90,11 @@ namespace RoutesService.Src.Controllers
                 return BadRequest(new ApiResponse<object?>(null, ex.Message, false));
             }
         }
+        /// <summary>
+        /// Desactiva una ruta (Soft Delete).
+        /// </summary>
+        /// <param name="id">El ID de la ruta a desactivar.</param>
+        /// <returns>Una respuesta de éxito o un error si la ruta no se encuentra.</returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult<ApiResponse<object?>>> DeleteRoute(string id)
         {
