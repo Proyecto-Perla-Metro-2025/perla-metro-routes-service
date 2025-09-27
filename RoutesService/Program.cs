@@ -12,6 +12,7 @@ builder.Services.AddSingleton<Neo4jConnection>(); // Servicio para la conexión 
 builder.Services.AddScoped<IRouteRepository, Neo4jRouteRepository>(); // Servicio del Repositorio
 builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddAutoMapper(typeof(Program));
+
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 var url = $"http://*:{port}";
 builder.WebHost.UseUrls(url);
