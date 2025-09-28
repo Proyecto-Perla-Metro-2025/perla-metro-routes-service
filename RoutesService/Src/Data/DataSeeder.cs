@@ -10,7 +10,7 @@ namespace RoutesService.Src.Data
     {
         public static async Task SeedRoutes(IServiceProvider serviceProvider)
         {
-            
+
             using (var scope = serviceProvider.CreateScope())
             {
                 var routeRepository = scope.ServiceProvider.GetRequiredService<IRouteRepository>();
@@ -41,21 +41,21 @@ namespace RoutesService.Src.Data
                     new RouteEntity
                     {
                         OriginStation = "Estación La Portada",
-                        DestinationStation = "Estación Central",
+                        DestinationStation = "Estación Norte",
                         StartTime = DateTime.UtcNow.Date.AddHours(8), // 08:00 AM
                         EndTime = DateTime.UtcNow.Date.AddHours(9),   // 09:00 AM
-                        IntermediateStops = new List<string> { "Estación Latorre", "Estación Prat" },
+                        IntermediateStops = new List<string> { "Estación Latorre", "Estación Centro" },
                         IsActive = true
                     },
                     new RouteEntity
                     {
                         OriginStation = "Estación Sur",
-                        DestinationStation = "Estación Norte",
+                        DestinationStation = "Estación Terminal",
                         StartTime = DateTime.UtcNow.Date.AddHours(10), // 10:00 AM
                         EndTime = DateTime.UtcNow.Date.AddHours(11),   // 11:00 AM
                         IntermediateStops = new List<string> { "Estación Centro" },
-                        IsActive = false // Una ruta inactiva de ejemplo
-                    }
+                        IsActive = false // Ruta inactiva de ejemplo
+                    }
                 };
 
                 // Guardamos cada ruta en la base de datos
