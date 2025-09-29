@@ -137,3 +137,15 @@ A continuación se detalla cómo consumir cada endpoint usando una herramienta c
 * **Ejemplo con cURL:**:
   ```bash
   curl -X DELETE http://localhost:8080/api/routes/{id}
+
+## 6. Consideraciones Generales
+Esta sección detalla las decisiones de diseño y los estándares aplicados específicamente al `Routes Service`.
+
+* **Tecnología:** El servicio utiliza **ASP.NET Core 9.0** y una base de datos de grafos **Neo4j** para la persistencia de datos.
+* **Seguridad y Acceso:** Este servicio delega la responsabilidad de la **autenticación y autorización** al API Gateway (`API Main`). Los endpoints de escritura (`POST`, `PUT`, `DELETE`) asumen que cualquier petición que reciben ya ha sido validada por el gateway.
+* **Borrado Lógico (Soft Delete):** Para mantener la trazabilidad, al eliminar una ruta, esta no se borra físicamente, sino que se marca como inactiva (`IsActive: false`).
+* **Control de Versiones:** Todo el desarrollo sigue el estándar de **Conventional Commits** para mantener un historial de cambios limpio.
+* **Despliegue:** El servicio está diseñado para ser desplegado como un contenedor de **Docker** en la plataforma **Render**.
+
+### URL de Despliegue Directo
+El despliegue de este servicio se encuentra en `https://perla-metro-routes-service.onrender.com`. Sin embargo, el acceso a la API para el consumo de datos debe realizarse **siempre** a través del **API Gateway**. Esta URL directa es útil principalmente para realizar un "arranque en frío" (warm-up) del servicio antes de una sesión de pruebas.
